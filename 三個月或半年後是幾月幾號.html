@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="favicon.png" rel="shortcut icon"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+TC:wght@200..900&display=swap" rel="stylesheet">
+    <title>重美定檢日期計算機</title>
+    <style>
+        body {
+            font-family: "Noto Sans TC","Segoe UI", Arial, "Microsoft JhengHei", sans-serif; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px; 
+            padding: 20px;
+            margin: 0;
+            background-color: #fcfaf2; 
+            text-align: center; 
+            font-weight: 500;
+        }
+        .container {
+            background-color: white;
+            padding: 30px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15); 
+            min-width: 300px; 
+        }
+     
+        p {
+            font-size: 1.4em; 
+            color: #34495e; 
+            margin: 15px 0; 
+            line-height: 1.6; 
+        }
+        .date-result {
+            font-weight: bold;
+            color: #007bff; 
+        }
+        .today-info {
+            margin-top: 30px;
+            font-size: 0.5em;
+            color: #7f8c8d; 
+        }
+        .today-info span {
+            font-weight: normal; 
+        }
+
+        #date91, #date181 {
+            font-size: 1.5em; 
+            color: #e74c3c; 
+            font-weight: 900;
+        }
+
+        .afterdatetext{
+            font-size: 1.5em; 
+            color: #e67e22; 
+            font-weight: bold;
+        }
+
+        .title-wrapper {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            width: 100%; 
+
+        }
+
+        .logo {
+            flex-grow: 0; 
+            flex-shrink: 0; 
+            flex-basis: 15%; 
+
+            max-width: 15%; 
+            height: auto; 
+            object-fit: contain; 
+            max-height: 40px; 
+        }
+
+        .title-wrapper h1 {
+            flex-grow: 1; 
+            text-align: center; 
+            margin: 0; 
+            font-size: 2em;
+            color: #2c3e50;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-wrapper">
+            <img src="favicon.png" alt="default" class="logo" style="padding-left:20px;">
+            <h1>定檢日期計算</h1>
+            <img src="favicon.png" alt="default" class="logo" style="padding-right:20px;">
+        </div>
+        
+        <p>從今日 (<span id="currentDateSimple" class="date-result"></span>) 起算</p>
+        <hr>
+        <p><span class="afterdatetext">三個月後</span>開始可洗牙的日期是：<br><span id="date91" class="date-result"></span>
+            <span style="font-size: x-small;">以後</span>
+        </p>
+        <hr>
+        <p><span class="afterdatetext">六個月後</span>開始可洗牙的日期是：<br><span id="date181" class="date-result"></span>
+            <span style="font-size: x-small;">以後</span>
+        </p>
+        <hr>
+        <p class="today-info">
+            完整電腦日期：<span><span id="currentDateFull"></span></span>
+        </p>
+    </div>
+
+    <script>
+        function formatDate(date, simple = false) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; 
+            const day = date.getDate();
+            
+
+            const formattedMonth = month < 10 ? '0' + month : month;
+            const formattedDay = day < 10 ? '0' + day : day;
+
+            if (simple) {
+
+                return `${year}/${formattedMonth}/${formattedDay}`;
+            }
+
+            return `${year}年 ${formattedMonth}月${formattedDay}日`;
+        }
+
+        function getFutureDate(baseDate, days) {
+
+            const futureDate = new Date(baseDate.getTime()); 
+            futureDate.setDate(baseDate.getDate() + days);
+            return formatDate(futureDate);
+        }
+
+
+        const today = new Date();
+        
+
+        document.getElementById('currentDateSimple').textContent = formatDate(today, true);
+        document.getElementById('currentDateFull').textContent = formatDate(today);
+        document.getElementById('date91').textContent = getFutureDate(today, 91);
+        document.getElementById('date181').textContent = getFutureDate(today, 181);
+    </script>
+</body>
+</html>
