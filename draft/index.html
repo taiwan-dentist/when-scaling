@@ -6,6 +6,7 @@
     <link href="favicon.png" rel="shortcut icon"/>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+TC:wght@200..900&display=swap" rel="stylesheet">
     <link href="tabs.css" rel="stylesheet">
+    <link href="logic.css" rel="stylesheet">
     <title>重美定檢日期計算機</title>
     <style>
         body {
@@ -21,14 +22,7 @@
             text-align: center; 
             font-weight: 500;
         }
-        .container {
-            background-color: transparent;
-            padding: 0;
-            border-radius: 0;
-            box-shadow: none;
-            max-width: 600px;
-            width: 100%;
-        }
+
      
         p {
             font-size: 1.4em; 
@@ -38,10 +32,10 @@
         }
         .date-result {
             font-weight: bold;
-            color: #007bff; 
+            color: #91AD70; 
         }
         .today-info {
-            margin-top: 30px;
+            margin-top: 10px;
             font-size: 0.5em;
             color: #7f8c8d; 
         }
@@ -49,7 +43,7 @@
             font-weight: normal; 
         }
 
-        #date91, #date181 {
+        #date91, #date181, #specifiedDate91, #specifiedDate181 {
             font-size: 1.5em; 
             color: #e74c3c; 
             font-weight: 900;
@@ -91,12 +85,13 @@
     <div class="container">
         <div class="tabs-container">
             <div class="tabs-nav">
-                <button class="tab-button active" onclick="showTab('account')">Account</button>
-                <button class="tab-button" onclick="showTab('password')">Password</button>
+                <button class="tab-button active" onclick="showTab('today')">今日起算</button>
+                <button class="tab-button" onclick="showTab('someday')">某日起算</button>
             </div>
             
             <div class="tabs-content">
-                <div id="account-tab" class="tab-pane active">
+                <!-- 今日起算的標籤葉面 -->
+                <div id="today-tab" class="tab-pane active">
                     <div class="title-wrapper">
                         <img src="favicon.png" alt="default" class="logo" style="padding-left:10px;">
                         <h1>定檢日期計算</h1>
@@ -118,15 +113,39 @@
                     </p>
                 </div>
                 
-                <div id="password-tab" class="tab-pane">
+                <!-- 某日起算的標籤內容 -->
+                <div id="someday-tab" class="tab-pane">
                     <div class="title-wrapper">
                         <img src="favicon.png" alt="default" class="logo" style="padding-left:10px;">
-                        <h1>密碼設定</h1>
+                        <h1>指定日期計算</h1>
                         <img src="favicon.png" alt="default" class="logo" style="padding-right:10px;">
                     </div>
                     
-                    <p>這裡是密碼相關的內容</p>
-                    <p>您可以在此處添加密碼管理功能</p>
+                    <!-- 輸入指定日期區 -->
+                    <div class="date-input-area">
+                    <label for="inputYear" class="specialareaword">起算日期：</label>
+                    <input type="text" id="inputYear" maxlength="4" placeholder="YYYY" inputmode="numeric"> <span class="date-separator specialareaword">年</span>
+                    <input type="text" id="inputMonth" maxlength="2" placeholder="MM" inputmode="numeric"> <span class="date-separator specialareaword">月</span>
+                    <input type="text" id="inputDay" maxlength="2" placeholder="DD" inputmode="numeric"> <span class="date-separator specialareaword">日</span>
+                    </div>
+                    <button id="calculateSpecifiedDate">計算指定日期</button>
+
+                    <div class="results-specified-date">
+                    <p style="display: none;" id="specifiedDateIntro">從指定日期 (<span id="specifiedDateSimple" class="date-result"></span>) 起算：</p>
+                    <hr id="hr1" style="display: none;">
+                    <p style="display: none;" id="specifiedDateResult91"><span class="afterdatetext">三個月後</span>開始可洗牙的日期是：<br>
+                        <span id="specifiedDate91" class="date-result"></span>
+                        
+                    </p>
+                    <hr id="hr2" style="display: none;">
+                    <p style="display: none;" id="specifiedDateResult181"><span class="afterdatetext">六個月後</span>開始可洗牙的日期是：<br>
+                        <span id="specifiedDate181" class="date-result"></span>
+                        
+                    </p>
+                        
+                    <p id="specifiedDateError" class="error-message" style="display: none;"></p> </div>
+
+
                 </div>
             </div>
         </div>
@@ -171,12 +190,114 @@
         }
 
         // 初始化日期
-        const today = new Date();
+        // const today = new Date();
         
-        document.getElementById('currentDateSimple').textContent = formatDate(today, true);
-        document.getElementById('currentDateFull').textContent = formatDate(today);
-        document.getElementById('date91').textContent = getFutureDate(today, 91);
-        document.getElementById('date181').textContent = getFutureDate(today, 181);
+        // document.getElementById('currentDateSimple').textContent = formatDate(today, true);
+        // document.getElementById('currentDateFull').textContent = formatDate(today);
+        // document.getElementById('date91').textContent = getFutureDate(today, 91);
+        // document.getElementById('date181').textContent = getFutureDate(today, 181);
+
+        // DOMContentLoaded ensures script runs after HTML is fully loaded
+        window.addEventListener('DOMContentLoaded', () => {
+
+            // Tab 1: "從今天起算" Initialization
+            function initializeTab1() {
+                const today = new Date();
+                document.getElementById('currentDateSimple').textContent = formatDate(today, true);
+                document.getElementById('currentDateFull').textContent = formatDate(today);
+                document.getElementById('date91').textContent = getFutureDate(today, 91);
+                document.getElementById('date181').textContent = getFutureDate(today, 181);
+            }
+            initializeTab1();
+
+            // Tab 2: "指定日期起算" Logic
+            const inputYear = document.getElementById('inputYear');
+            const inputMonth = document.getElementById('inputMonth');
+            const inputDay = document.getElementById('inputDay');
+            const calculateBtn = document.getElementById('calculateSpecifiedDate');
+            
+            const specifiedDateIntroEl = document.getElementById('specifiedDateIntro');
+            const specifiedDateResult91El = document.getElementById('specifiedDateResult91');
+            const specifiedDateResult181El = document.getElementById('specifiedDateResult181');
+
+            const specifiedDateSimpleEl = document.getElementById('specifiedDateSimple');
+            const specifiedDate91DisplayEl = document.getElementById('specifiedDate91'); // Note: Changed ID for clarity
+            const specifiedDate181DisplayEl = document.getElementById('specifiedDate181'); // Note: Changed ID for clarity
+            const specifiedDateErrorEl = document.getElementById('specifiedDateError');
+            const hrline1 = document.getElementById('hr1');
+            const hrline2 = document.getElementById('hr2');
+
+
+            const dateInputs = [inputYear, inputMonth, inputDay];
+            dateInputs.forEach((input, idx) => {
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, ''); // 只允許數字
+                    if (this.value.length === parseInt(this.getAttribute('maxlength'))) {
+                        if (idx < dateInputs.length - 1) {
+                            dateInputs[idx + 1].focus();
+                        } else {
+                            calculateBtn.focus();
+                        }
+                    }
+                });
+            });
+
+            calculateBtn.addEventListener('click', () => {
+                // 清除舊的錯誤和結果
+                specifiedDateErrorEl.textContent = '';
+                specifiedDateErrorEl.style.display = 'none';
+                specifiedDateIntroEl.style.display = 'none';
+                specifiedDateResult91El.style.display = 'none';
+                specifiedDateResult181El.style.display = 'none';
+
+                const yearStr = inputYear.value;
+                const monthStr = inputMonth.value;
+                const dayStr = inputDay.value;
+
+                if (yearStr.length !== 4 || monthStr.length === 0 || dayStr.length === 0) {
+                    specifiedDateErrorEl.textContent = '請確保年(4位)、月、日均已完整填寫。';
+                    specifiedDateErrorEl.style.display = 'block';
+                    return;
+                }
+
+                const year = parseInt(yearStr);
+                const month = parseInt(monthStr); // 用戶輸入 1-12
+                const day = parseInt(dayStr);
+
+                if (isNaN(year) || isNaN(month) || isNaN(day) || month < 1 || month > 12) {
+                    specifiedDateErrorEl.textContent = '請輸入有效的月份 (1-12) 和日期。';
+                    specifiedDateErrorEl.style.display = 'block';
+                    return;
+                }
+                if (year < 1000 || year > 3000) { // 基本年份範圍檢查
+                    specifiedDateErrorEl.textContent = '年份超出合理範圍 (1000-3000)。';
+                    specifiedDateErrorEl.style.display = 'block';
+                    return;
+                }
+                
+                const testDate = new Date(year, month - 1, day); // month - 1 因為 JS 月份是 0-11
+                if (testDate.getFullYear() !== year || testDate.getMonth() !== (month - 1) || testDate.getDate() !== day) {
+                    specifiedDateErrorEl.textContent = '您輸入的日期無效 (例如：2月30日或無效的日期)。請檢查。';
+                    specifiedDateErrorEl.style.display = 'block';
+                    return;
+                }
+
+                const baseDate = new Date(year, month - 1, day);
+
+                specifiedDateSimpleEl.textContent = formatDate(baseDate, true);
+                specifiedDate91DisplayEl.textContent = getFutureDate(baseDate, 91);
+                specifiedDate181DisplayEl.textContent = getFutureDate(baseDate, 181);
+                
+                // 顯示結果區域
+                specifiedDateIntroEl.style.display = 'block';
+                specifiedDateResult91El.style.display = 'block';
+                specifiedDateResult181El.style.display = 'block';
+                hrline1.style.display = 'block';
+                hrline2.style.display = 'block';
+            });
+        });
+
+
     </script>
 </body>
 </html>
